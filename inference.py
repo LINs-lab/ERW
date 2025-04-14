@@ -1,5 +1,3 @@
-# sample_ddp_with_fid.py
-
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # All rights reserved.
 
@@ -15,8 +13,7 @@ For a simple single-GPU/CPU sampling script, see sample.py.
 """
 import torch
 import torch.distributed as dist
-# from models.sit_repa import SiT_models
-from models.sit_warmup import SiT_models
+from models.sit import SiT_models
 from diffusers.models import AutoencoderKL
 from tqdm import tqdm
 import os
@@ -72,9 +69,7 @@ def main(args):
         use_cfg=True,
         z_dims=[int(z_dim) for z_dim in args.projector_embed_dims.split(',')],
         encoder_depth=args.encoder_depth,
-        use_swiglu=args.use_swiglu,
         use_rope=args.use_rope,
-        wo_shift=args.wo_shift,
         warmup=False,
         **block_kwargs,
     ).to(device)
