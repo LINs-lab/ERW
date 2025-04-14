@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Efficient Generative Model Training via Embedded Representation Warmup</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --light-gray: #ecf0f1;
+            --border-color: #ddd;
+            --section-padding: 2rem 0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 0.5rem;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--primary-color);
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .authors {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .affiliations {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .links {
+            margin: 1.5rem 0;
+        }
+        
+        .links a {
+            display: inline-block;
+            margin: 0 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .links a:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .summary {
+            background-color: var(--light-gray);
+            padding: 1.8rem;
+            border-radius: 8px;
+            margin: 2.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .summary ul {
+            margin-top: 1rem;
+            margin-left: 1.5rem;
+        }
+        
+        .summary li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .figure {
+            margin: 2.5rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: white;
+            transition: transform 0.3s ease;
+        }
+        
+        .figure:hover {
+            transform: translateY(-5px);
+        }
+        
+        .figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        
+        .figure-caption {
+            margin-top: 1.2rem;
+            font-size: 0.95rem;
+            color: #555;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+            padding: 0.5rem;
+        }
+        
+        .table-container {
+            margin: 2.5rem 0;
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        table, th, td {
+            border: 1px solid var(--border-color);
+        }
+        
+        th, td {
+            padding: 0.8rem;
+            text-align: center;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        td b {
+            color: var(--accent-color);
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .table-caption {
+            margin-top: 0.8rem;
+            font-size: 0.95rem;
+            text-align: center;
+            color: #555;
+            padding: 0.5rem 1rem;
+        }
+        
+        .section {
+            padding: var(--section-padding);
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .citation {
+            background-color: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-left: 4px solid #9b59b6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-color);
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+            }
+            
+            h3 {
+                font-size: 1.2rem;
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .authors, .affiliations {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .authors div, .affiliations div {
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            line-height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 100;
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+        
+        .pdf-notice {
+            display: none;
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #ffeeba;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Efficient Generative Model Training via Embedded Representation Warmup</h1>
+        
+        <div class="authors">
+            <div>Deyuan Liu<sup>1*</sup></div>
+            <div>&middot;</div>
+            <div>Peng Sun<sup>1,3*</sup></div>
+            <div>&middot;</div>
+            <div>Xufeng Li<sup>1,4</sup></div>
+            <div>&middot;</div>
+            <div>Tao Lin<sup>1†</sup></div>
+        </div>
+        
+        <div class="affiliations">
+            <div><sup>1</sup> Westlake University</div>
+            <div><sup>3</sup> Zhejiang University</div>
+            <div><sup>4</sup> Nanjing University</div>
+        </div>
+        
+        <div><small>* These authors contributed equally. † Corresponding author.</small></div>
+        
+        <div class="links">
+            <a href="http://arxiv.org/abs/2410.06940" target="_blank">arXiv</a>
+            <a href="https://github.com/LINs-lab/ERW" target="_blank">Code</a>
+            <a href="#bibtex">BibTeX</a>
+        </div>
+    </header>
+
+    <div class="figure">
+        <img src="merged_image_1.png" alt="Selected Samples on ImageNet">
+        <p class="figure-caption"><b>Figure 1:</b> Selected Samples on ImageNet 256×256. Images generated by the SiT-XL/2 + REPA + ERW model using classifier-free guidance (CFG) with a scale of w=2.2 under 40 epochs.</p>
+    </div>
+
+    <div class="figure">
+        <div class="images-row" style="display: flex; justify-content: space-between; gap: 10px;">
+            <img src="erw.png" alt="Embedded Representation Warmup Framework" style="width: 34%;">
+            <img src="training_line_chart.png" alt="Embedded Representation Warmup Framework" style="width: 37%;">
+            <img src="erinit1.png" alt="Embedded Representation Warmup Framework" style="width: 28%;">
+        </div>
+        <p class="figure-caption">
+            <b>Figure 2:</b> <b>Embedded Representation Warmup (ERW).</b> Throughout the training process, we demonstrate that incorporating representations at the early stages is highly beneficial. To this end, we propose a representation warmup stage that employs a representation alignment loss to integrate representations from models such as Dinov2 into the ERW. This initialized representation region is subsequently embedded into the diffusion model pipeline, providing a strong starting point for training.
+        </p>
+    </div>
+    
+    <section class="summary">
+        <h3>Summary</h3>
+        <p>Diffusion models have made impressive progress in generating high-fidelity images. However, training them from scratch requires learning both robust semantic representations and the generative process simultaneously. Our work introduces Embedded Representation Warmup (ERW) -- a plug-and-play two-phase training framework that:</p>
+        <ul>
+            <li><strong>Phase 1 -- Warmup:</strong> Initializes the early layers of the diffusion model with high-quality, pretrained visual representations (e.g., from DINOv2 or other self-supervised encoders).</li>
+            <li><strong>Phase 2 -- Full Training:</strong> Continues with standard diffusion training while gradually reducing the alignment loss, so the model can focus on refining generation.</li>
+        </ul>
+    </section>
+    
+    <section class="section">
+        <h2>Key Idea: Three-Stage Diffusion Circuit</h2>
+        <p>We propose a <em>three-stage</em> diffusion circuit as a structured framework for more effective and interpretable generative modeling:</p>
+        
+        <div class="figure">
+            <img src="circuits.png" alt="Three-Stage Diffusion Circuit" style="width: 60%;">
+            <p class="figure-caption">
+                <b>Figure 3:</b> Illustration of the Three-Stage Diffusion Circuit. From left to right, we first apply a VAE encoder (the <i>Pixel-to-Latent</i> or <b>(P2L)</b> stage) to map high-dimensional inputs to a compressed latent space. We then perform latent diffusion on these codes, dividing the backbone into two subregions: the <i>Latent-to-Representation</i> <b>(L2R)</b> region that capture and refine semantic features, and the <i>Representation-to-Generation</i> <b>(R2G)</b> region that decode the learned representation into final outputs.
+            </p>
+        </div>
+        
+        <p>Our guiding hypothesis is that conventional diffusion methods entangle <em>representation learning</em> and <em>generative decoding</em> within the denoising process, burdening the network with two inherently distinct tasks. By explicitly isolating the semantic processing (L2R) from the generative inversion (R2G), our approach promotes modularity and simplifies the overall optimization landscape.</p>
+    </section>
+    
+    <section class="section">
+        <h2>Results</h2>
+        
+        <!-- <h3>Substantial FID Improvements with Reduced Training Time</h3>
+        
+        <div class="figure">
+            <img src="merged_image_1.png" alt="Selected Samples on ImageNet">
+            <p class="figure-caption"><b>Figure 3:</b> Selected Samples on ImageNet 256×256. Images generated by the SiT-XL/2 + REPA + ERW model using classifier-free guidance (CFG) with a scale of w=2.2 under 40 epochs.</p>
+        </div> -->
+        
+        <h3>Comparison to State-of-the-Art Methods</h3>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Epochs</th>
+                        <th>FID↓</th>
+                        <th>sFID↓</th>
+                        <th>IS↑</th>
+                        <th>Pre.↑</th>
+                        <th>Rec.↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="7"><i>Latent diffusion, Transformer</i></td>
+                    </tr>
+                    <tr>
+                        <td>DiT-XL/2</td>
+                        <td>1400</td>
+                        <td>2.27</td>
+                        <td>4.60</td>
+                        <td>278.2</td>
+                        <td><b>0.83</b></td>
+                        <td>0.57</td>
+                    </tr>
+                    <tr>
+                        <td>SiT-XL/2</td>
+                        <td>1400</td>
+                        <td>2.06</td>
+                        <td>4.50</td>
+                        <td>270.3</td>
+                        <td>0.82</td>
+                        <td>0.59</td>
+                    </tr>
+                    <tr>
+                        <td>REPA</td>
+                        <td>200</td>
+                        <td>1.96</td>
+                        <td><b>4.49</b></td>
+                        <td>264.0</td>
+                        <td>0.82</td>
+                        <td>0.60</td>
+                    </tr>
+                    <tr>
+                        <td>ERW (ours)</td>
+                        <td><b>40</b></td>
+                        <td><b>1.94</b></td>
+                        <td>7.91</td>
+                        <td><b>300.9</b></td>
+                        <td>0.75</td>
+                        <td><b>0.63</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-caption"><b>Table 1:</b> System-level comparison on ImageNet 256×256 with CFG. ↓ and ↑ indicate whether lower or higher values are better, respectively.</p>
+        
+        <h3>Training Efficiency and Cost Analysis</h3>
+        
+        <div class="figure">
+            <img src="combined_plot.png" alt="Training Efficiency and Cost Analysis">
+            <p class="figure-caption"><b>Figure 4:</b> Comparison of Training Efficiency and Cost Analysis with Warmup and Full Training Stages. <b>Left:</b> Scatter plot depicting the relationship between the total training cost (in TFLOPs) and the FID score for various training strategies. <b>Right:</b> Bar chart comparing the computational costs of the warmup and full training stages for different strategies (all evaluated over 100K iterations).</p>
+        </div>
+        
+        <h3>Rapid Convergence Without Classifier-Free Guidance</h3>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>#Params</th>
+                        <th>Iter.</th>
+                        <th>FID↓</th>
+                        <th>sFID↓</th>
+                        <th>IS↑</th>
+                        <th>Prec.↑</th>
+                        <th>Rec.↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SiT-XL/2</td>
+                        <td>675M</td>
+                        <td>7M</td>
+                        <td>8.3</td>
+                        <td>6.32</td>
+                        <td>131.7</td>
+                        <td>0.68</td>
+                        <td>0.67</td>
+                    </tr>
+                    <tr>
+                        <td>REPA</td>
+                        <td>675M</td>
+                        <td>50K</td>
+                        <td>52.3</td>
+                        <td>31.24</td>
+                        <td>24.3</td>
+                        <td>0.45</td>
+                        <td>0.53</td>
+                    </tr>
+                    <tr>
+                        <td>ERW (ours)</td>
+                        <td>675M</td>
+                        <td>50K</td>
+                        <td><b>8.5</b></td>
+                        <td><b>9.59</b></td>
+                        <td><b>154.7</b></td>
+                        <td><b>0.72</b></td>
+                        <td><b>0.51</b></td>
+                    </tr>
+                    <tr>
+                        <td>REPA</td>
+                        <td>675M</td>
+                        <td>100K</td>
+                        <td>19.4</td>
+                        <td>6.06</td>
+                        <td>67.4</td>
+                        <td>0.64</td>
+                        <td>0.61</td>
+                    </tr>
+                    <tr>
+                        <td>ERW (ours)</td>
+                        <td>675M</td>
+                        <td>100K</td>
+                        <td><b>6.0</b></td>
+                        <td><b>6.37</b></td>
+                        <td><b>207.5</b></td>
+                        <td><b>0.67</b></td>
+                        <td><b>0.63</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-caption"><b>Table 2:</b> FID comparisons with SiT-XL/2 on ImageNet 256×256 at various training iterations without classifier-free guidance.</p>
+    </section>
+    
+    <section class="section">
+        <h2>Ablation Studies and Analysis</h2>
+        
+        <h3>Effect of ERW Placement</h3>
+        
+        <p>Our hypothesis states that early layers in the diffusion backbone primarily learn semantic features (the L2R circuit), whereas deeper layers specialize in generative decoding.</p>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Target Repr.</th>
+                        <th>Depth</th>
+                        <th>Objective</th>
+                        <th>FID↓</th>
+                        <th>sFID↓</th>
+                        <th>IS↑</th>
+                        <th>Prec.↑</th>
+                        <th>Rec.↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SiT-B/2 + REPA</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>78.2</td>
+                        <td>11.71</td>
+                        <td>17.1</td>
+                        <td>0.33</td>
+                        <td>0.48</td>
+                    </tr>
+                    <tr>
+                        <td>DINOv2-B</td>
+                        <td>0-8</td>
+                        <td>NT-Xent</td>
+                        <td><b>54.2</b></td>
+                        <td><b>8.12</b></td>
+                        <td><b>27.2</b></td>
+                        <td><b>0.45</b></td>
+                        <td><b>0.59</b></td>
+                    </tr>
+                    <tr>
+                        <td>DINOv2-B</td>
+                        <td>1-9</td>
+                        <td>NT-Xent</td>
+                        <td>69.1</td>
+                        <td>13.0</td>
+                        <td>18.7</td>
+                        <td>0.37</td>
+                        <td>0.51</td>
+                    </tr>
+                    <tr>
+                        <td>DINOv2-B</td>
+                        <td>2-10</td>
+                        <td>NT-Xent</td>
+                        <td>67.7</td>
+                        <td>13.4</td>
+                        <td>19.0</td>
+                        <td>0.38</td>
+                        <td>0.52</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-caption"><b>Table 3:</b> Analysis of ERW placement influence in SiT-B/2. All models are trained for 50K iterations under the batch size of 256 without using classifier-free guidance on ImageNet 256×256.</p>
+        
+        <p>Empirical evidence confirms that initializing the earliest layers (0-8) notably outperforms re-initializing middle or late sections, corroborating our three-stage diffusion circuit theory.</p>
+        
+        <h3>Projection Depth and Alignment Weight Optimization</h3>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ERW Depth</th>
+                        <th>Proj. Depth</th>
+                        <th>λ</th>
+                        <th>FID↓</th>
+                        <th>sFID↓</th>
+                        <th>IS↑</th>
+                        <th>Prec.↑</th>
+                        <th>Rec.↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>4</td>
+                        <td>14</td>
+                        <td>0.1</td>
+                        <td>21.6</td>
+                        <td>19.58</td>
+                        <td>74.9</td>
+                        <td>0.62</td>
+                        <td>0.49</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>14</td>
+                        <td>0.5</td>
+                        <td>12.4</td>
+                        <td>16.97</td>
+                        <td>124.3</td>
+                        <td>0.68</td>
+                        <td>0.48</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>14</td>
+                        <td>2.0</td>
+                        <td>9.0</td>
+                        <td>11.17</td>
+                        <td>151.2</td>
+                        <td>0.72</td>
+                        <td>0.51</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>14</td>
+                        <td>4.0</td>
+                        <td><b>8.6</b></td>
+                        <td>9.84</td>
+                        <td><b>153.6</b></td>
+                        <td><b>0.72</b></td>
+                        <td>0.51</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>14</td>
+                        <td>6.0</td>
+                        <td>8.8</td>
+                        <td><b>9.46</b></td>
+                        <td>151.1</td>
+                        <td>0.71</td>
+                        <td><b>0.52</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-caption"><b>Table 4:</b> Analysis of ERW depth, projection depth, and different alignment loss weights (λ) for SiT-XL/2. All models are trained for 50K iterations without classifier-free guidance.</p>
+        
+        <p>Using 4 warmup layers, a projection head at depth 14, and λ=4.0 achieves an FID of 8.6 at 50k iterations--a substantial gain over baselines.</p>
+        
+        <h3>Representation Dynamics During Training</h3>
+        
+        <div class="figure">
+            <img src="2.png" alt="Representation Alignment" style="width: 48%; display: inline-block; margin-right: 2%;">
+            <img src="CKNNA_vs_Layers.png" alt="Training Dynamics" style="width: 48%; display: inline-block;">
+            <p class="figure-caption"><b>Figure 5:</b> Scalability of ERW. (a) Alignment with ERW plot showing high degree of alignment across all ERW depths. (b) Training dynamics for alignment indicate that within the 500K training steps for SiT-XL/2, the alignment between DINOv2-g and the diffusion model first decreases and then increases.</p>
+        </div>
+        
+        <p>Representation alignment follows a U-shaped trajectory, revealing the model's gradual reconfiguration of pretrained features for denoising tasks before distilling them into robust, generative-friendly embeddings.</p>
+        
+        <h3>Target Representation Model Selection</h3>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Target Repr.</th>
+                        <th>Depth</th>
+                        <th>Objective</th>
+                        <th>FID↓</th>
+                        <th>sFID↓</th>
+                        <th>IS↑</th>
+                        <th>Prec.↑</th>
+                        <th>Rec.↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>MoCov3-B</td>
+                        <td>8</td>
+                        <td>NT-Xent</td>
+                        <td>61.1</td>
+                        <td><b>7.6</b></td>
+                        <td>22.38</td>
+                        <td>0.42</td>
+                        <td><b>0.58</b></td>
+                    </tr>
+                    <tr>
+                        <td>MoCov3-L</td>
+                        <td>8</td>
+                        <td>NT-Xent</td>
+                        <td>73.0</td>
+                        <td>8.0</td>
+                        <td>17.96</td>
+                        <td>0.38</td>
+                        <td>0.52</td>
+                    </tr>
+                    <tr>
+                        <td>CLIP-L</td>
+                        <td>8</td>
+                        <td>NT-Xent</td>
+                        <td>58.9</td>
+                        <td>7.7</td>
+                        <td>23.68</td>
+                        <td><b>0.44</b></td>
+                        <td>0.54</td>
+                    </tr>
+                    <tr>
+                        <td>DINOv2-B</td>
+                        <td>8</td>
+                        <td>NT-Xent</td>
+                        <td>55.6</td>
+                        <td>7.8</td>
+                        <td>25.45</td>
+                        <td><b>0.44</b></td>
+                        <td>0.56</td>
+                    </tr>
+                    <tr>
+                        <td>DINOv2-L</td>
+                        <td>8</td>
+                        <td>NT-Xent</td>
+                        <td><b>55.5</b></td>
+                        <td>7.8</td>
+                        <td>25.45</td>
+                        <td><b>0.44</b></td>
+                        <td>0.56</td>
+                    </tr>
+                    <tr>
+                        <td>DINOv2-g</td>
+                        <td>8</td>
+                        <td>NT-Xent</td>
+                        <td>59.4</td>
+                        <td><b>7.6</b></td>
+                        <td><b>25.53</b></td>
+                        <td><b>0.44</b></td>
+                        <td>0.56</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-caption"><b>Table 5:</b> Analysis of different target representation models for ERW on ImageNet 256×256. All models are SiT-B/2 trained for 50K iterations.</p>
+        
+        <p>All encoders tested offer improvements over baselines, indicating that ERW can broadly benefit from a variety of strong representation models. DINOv2 variants yield comparable gains, suggesting that ERW does not require the largest possible teacher encoder for effective representation transfer.</p>
+        
+        <h3>ERW Depth Optimization</h3>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ERW Depth</th>
+                        <th>Proj. Depth</th>
+                        <th>λ</th>
+                        <th>FID↓</th>
+                        <th>sFID↓</th>
+                        <th>IS↑</th>
+                        <th>Prec.↑</th>
+                        <th>Rec.↑</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>3</td>
+                        <td>8</td>
+                        <td>0.5</td>
+                        <td>13.3</td>
+                        <td><b>13.65</b></td>
+                        <td>113.2</td>
+                        <td><b>0.69</b></td>
+                        <td>0.48</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>8</td>
+                        <td>0.5</td>
+                        <td><b>11.7</b></td>
+                        <td>17.93</td>
+                        <td>114.5</td>
+                        <td>0.68</td>
+                        <td>0.48</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>8</td>
+                        <td>0.5</td>
+                        <td>13.1</td>
+                        <td>15.25</td>
+                        <td><b>117.0</b></td>
+                        <td><b>0.69</b></td>
+                        <td>0.48</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>8</td>
+                        <td>0.5</td>
+                        <td>13.7</td>
+                        <td>16.62</td>
+                        <td>115.7</td>
+                        <td>0.68</td>
+                        <td><b>0.49</b></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>8</td>
+                        <td>0.5</td>
+                        <td>15.6</td>
+                        <td>16.42</td>
+                        <td>104.0</td>
+                        <td>0.67</td>
+                        <td>0.46</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>8</td>
+                        <td>0.5</td>
+                        <td>19.2</td>
+                        <td>16.91</td>
+                        <td>87.8</td>
+                        <td>0.65</td>
+                        <td>0.48</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-caption"><b>Table 6:</b> Analysis of ERW depth for SiT-XL/2. All models are trained for 50K iterations without classifier-free guidance.</p>
+        
+        <p>The results show that ERW is most effective when applied to the early layers of the diffusion model (depths 3-5), with performance degrading as more layers are included. This confirms our hypothesis that representation learning primarily occurs in early layers, while later layers focus more on generative refinement.</p>
+    </section>
+    
+    <section class="section">
+        <h2>Acknowledgement</h2>
+        <p>This paper is mainly built upon <a href="https://github.com/sihyun-yu/REPA" target="_blank">REPA</a>, <a href="https://github.com/hustvl/LightningDiT/" target="_blank">LightningDiT</a>, <a href="https://github.com/facebookresearch/DiT" target="_blank">DiT</a>, <a href="https://github.com/willisma/SiT" target="_blank">SiT</a>, <a href="https://github.com/NVlabs/edm2" target="_blank">edm2</a>, and <a href="https://github.com/LTH14/rcg" target="_blank">RCG</a> repositories.</p>
+    </section>
+    
+    <section id="bibtex">
+        <h2>BibTeX</h2>
+        <div class="citation">@inproceedings{yu2025repa,
+  title={Representation Alignment for Generation: Training Diffusion Transformers Is Easier Than You Think},
+  author={Sihyun Yu and Sangkyung Kwak and Huiwon Jang and Jongheon Jeong and Jonathan Huang and Jinwoo Shin and Saining Xie},
+  year={2025},
+  booktitle={International Conference on Learning Representations},
+}</div>
+    </section>
+    
+    <footer>
+        <p>© 2025 Westlake University. All rights reserved.</p>
+        <p>Last updated: April 14, 2025</p>
+    </footer>
+
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <script>
+        // Back to top button
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Fix table display issues on mobile
+        const tables = document.querySelectorAll('table');
+        tables.forEach(table => {
+            const headerRow = table.querySelector('thead tr');
+            const headerCells = headerRow.querySelectorAll('th');
+            
+            const dataCells = table.querySelectorAll('tbody tr td');
+            
+            // Ensure all cells have appropriate width
+            for (let i = 0; i < headerCells.length; i++) {
+                const width = headerCells[i].offsetWidth;
+                headerCells[i].style.minWidth = `${width}px`;
+            }
+        });
+        
+        // Convert all PDF references to PNG for proper display
+        document.addEventListener('DOMContentLoaded', function() {
+            // Already handled in the HTML by changing src attributes
+            console.log("PDF images have been converted to PNG format for display");
+        });
+    </script>
+</body>
+</html>
