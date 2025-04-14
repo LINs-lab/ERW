@@ -32,7 +32,7 @@ Diffusion models have made impressive progress in generating high-fidelity image
 
 ## 🔥 News
 
-- (🔥 New) \[2025/4/15\] 🔥**ERW code & weights are released!** 🎉 Include: Training & Inference code and [Weights in HF](asset/docs/model_zoo.md) are all released.
+- (🔥 New) \[2025/4/15\] 🔥**ERW code & weights are released!** 🎉 Include: Training & Inference code and [Weights in HF](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt) are all released.
 
 ### 1. Environment setup
 
@@ -58,11 +58,11 @@ python extract_latent.py \
 
 #### Warmuped Checkpoint
 
-[Weights for 100K Warmuped](asset/docs/model_zoo.md)
+[Weights for 100K Warmuped](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
 
-[Weights for 100K Warmuped + 200K Full Training (With QK-Norm)](asset/docs/model_zoo.md)
+[Weights for 100K Warmuped + 200K Full Training (With QK-Norm)](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
 
-[Weights for 100K Warmuped + 200K Full Training (Without QK-Norm)](asset/docs/model_zoo.md)
+[Weights for 100K Warmuped + 200K Full Training (Without QK-Norm)](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
 
 ### 3. Training
 
