@@ -32,7 +32,7 @@ Diffusion models have made impressive progress in generating high-fidelity image
 
 ## 🔥 News
 
-- (🔥 New) \[2025/4/15\] 🔥**RW-1.5 code & weights are released!** 🎉 Include: Training & Inference code and [Weights in HF](asset/docs/model_zoo.md) are all released.
+- (🔥 New) \[2025/4/15\] 🔥**ERW code & weights are released!** 🎉 Include: Training & Inference code and [Weights in HF](asset/docs/model_zoo.md) are all released.
 
 ### 1. Environment setup
 
