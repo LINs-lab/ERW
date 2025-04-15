@@ -60,6 +60,10 @@ python extract_latent.py \
 
 [Weights for 100K Warmuped](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
 
+[Weights for 100K Warmuped + 200K Full Training (With QK-Norm)](https://huggingface.co/SempraETY/ERW/blob/main/best.pt)
+
+[Weights for 100K Warmuped + 200K Full Training (Without QK-Norm)](https://huggingface.co/SempraETY/ERW/blob/main/0300000.pt)
+
 ### 3. Training
 
 Training from Scartch
