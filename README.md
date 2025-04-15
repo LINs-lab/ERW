@@ -5,14 +5,14 @@
 <a href="https://github.com/LINs-lab/ERW/"><img src="https://img.shields.io/static/v1?label=Project&message=Github&color=blue&logo=github-pages"></a> &ensp;
 
 <div align="center">
-  <a href="https://sempraety.github.io/DeyuanLiu.github.io/" target="_blank">Deyuan&nbsp;Liu</a><sup>1,2*</sup> &ensp; <b>&middot;</b> &ensp;
-  <a href="https://sp12138.github.io/" target="_blank">Peng&nbsp;Sun</a><sup>1,3*</sup> &ensp; <b>&middot;</b> &ensp;
-  <a href="#" target="_blank">Xufeng&nbsp;Li</a><sup>1,4</sup> &ensp; <b>&middot;</b> &ensp;
+  <a href="https://sempraety.github.io/DeyuanLiu.github.io/" target="_blank">Deyuan&nbsp;Liu</a><sup>1*</sup> &ensp; <b>&middot;</b> &ensp;
+  <a href="https://sp12138.github.io/" target="_blank">Peng&nbsp;Sun</a><sup>1,2*</sup> &ensp; <b>&middot;</b> &ensp;
+  <a href="#" target="_blank">Xufeng&nbsp;Li</a><sup>1,3</sup> &ensp; <b>&middot;</b> &ensp;
   <a href="https://tlin-taolin.github.io/" target="_blank">Tao&nbsp;Lin</a><sup>1†</sup>
   <br>
   <sup>1</sup> Westlake University &emsp;
-  <sup>3</sup> Zhejiang University &emsp;
-  <sup>4</sup> Nanjing University
+  <sup>2</sup> Zhejiang University &emsp;
+  <sup>3</sup> Nanjing University
   <br>
   * These authors contributed equally. &emsp; † Corresponding author.
 </div>
