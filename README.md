@@ -16,7 +16,7 @@
   <br>
   * These authors contributed equally. &emsp; † Corresponding author.
 </div>
-<h3 align="center">[<a href="ttps://arxiv.org/abs/2504.10188">arXiv</a>] [<a href="ttps://arxiv.org/abs/2504.10188">Project Page</a>]</h3>
+<h3 align="center">[<a href="https://arxiv.org/abs/2504.10188">arXiv</a>] [<a href="https://lins-lab.github.io/ERW/">Project Page</a>]</h3>
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
   <img src="asset/erw.png" style="width: 31%; border-radius: 10px;" alt="teaser_page1">
