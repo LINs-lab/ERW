@@ -1,8 +1,8 @@
 <h1 align="center"> Efficient Generative Model Training via Embedded Representation Warmup
 </h1>
 
-<a href="https://arxiv.org/abs/2410.10629"><img src="https://img.shields.io/static/v1?label=Arxiv&message=ERW&color=red&logo=arxiv"></a> &ensp;
-<a href="https://nvlabs.github.io/Sana/"><img src="https://img.shields.io/static/v1?label=Project&message=Github&color=blue&logo=github-pages"></a> &ensp;
+<a href="https://arxiv.org/abs/2504.10188"><img src="https://img.shields.io/static/v1?label=Arxiv&message=ERW&color=red&logo=arxiv"></a> &ensp;
+<a href="https://github.com/LINs-lab/ERW/"><img src="https://img.shields.io/static/v1?label=Project&message=Github&color=blue&logo=github-pages"></a> &ensp;
 
 <div align="center">
   <a href="https://sempraety.github.io/DeyuanLiu.github.io/" target="_blank">Deyuan&nbsp;Liu</a><sup>1,2*</sup> &ensp; <b>&middot;</b> &ensp;
@@ -16,7 +16,7 @@
   <br>
   * These authors contributed equally. &emsp; † Corresponding author.
 </div>
-<h3 align="center">[<a href="http://arxiv.org/abs/2410.06940">arXiv</a>] [<a href="http://arxiv.org/abs/2410.06940">Project Page</a>]</h3>
+<h3 align="center">[<a href="ttps://arxiv.org/abs/2504.10188">arXiv</a>] [<a href="ttps://arxiv.org/abs/2504.10188">Project Page</a>]</h3>
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
   <img src="asset/erw.png" style="width: 31%; border-radius: 10px;" alt="teaser_page1">
@@ -59,10 +59,6 @@ python extract_latent.py \
 #### Warmuped Checkpoint
 
 [Weights for 100K Warmuped](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
-
-[Weights for 100K Warmuped + 200K Full Training (With QK-Norm)](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
-
-[Weights for 100K Warmuped + 200K Full Training (Without QK-Norm)](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt)
 
 ### 3. Training
 
@@ -182,10 +178,5 @@ This code is mainly built upon [REPA](https://github.com/sihyun-yu/REPA), [Light
 ## BibTeX
 
 ```bibtex
-@inproceedings{yu2025repa,
-  title={Representation Alignment for Generation: Training Diffusion Transformers Is Easier Than You Think},
-  author={Sihyun Yu and Sangkyung Kwak and Huiwon Jang and Jongheon Jeong and Jonathan Huang and Jinwoo Shin and Saining Xie},
-  year={2025},
-  booktitle={International Conference on Learning Representations},
-}
+
 ```
