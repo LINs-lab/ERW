@@ -3,6 +3,7 @@
 
 <a href="https://arxiv.org/abs/2504.10188"><img src="https://img.shields.io/static/v1?label=Arxiv&message=ERW&color=red&logo=arxiv"></a> &ensp;
 <a href="https://github.com/LINs-lab/ERW/"><img src="https://img.shields.io/static/v1?label=Project&message=Github&color=blue&logo=github-pages"></a> &ensp;
+<a href="https://huggingface.co/papers/2504.10188"><img src="https://img.shields.io/static/v1?label=Project&message=HuggingFace&color=yellow&logo=hf-pages"></a> &ensp;
 
 <div align="center">
   <a href="https://sempraety.github.io/DeyuanLiu.github.io/" target="_blank">Deyuan&nbsp;Liu</a><sup>1*</sup> &ensp; <b>&middot;</b> &ensp;
@@ -32,7 +33,7 @@ Diffusion models have made impressive progress in generating high-fidelity image
 
 ## 🔥 News
 
-- (🔥 New) \[2025/4/15\] 🔥**ERW code & weights are released!** 🎉 Include: Training & Inference code and [Weights in HF](https://huggingface.co/SempraETY/ERW/blob/main/0100000.pt) are all released.
+- (🔥 New) \[2025/4/15\] 🔥**ERW code & weights are released!** 🎉 Include: Training & Inference code and [Weights in HF](https://huggingface.co/SempraETY/ERW/) are all released.
 
 ### 1. Environment setup
 
@@ -182,5 +183,13 @@ This code is mainly built upon [REPA](https://github.com/sihyun-yu/REPA), [Light
 ## BibTeX
 
 ```bibtex
-
+@misc {liu2025efficientgenerativemodeltraining,
+      title={Efficient Generative Model Training via Embedded Representation Warmup}, 
+      author={Deyuan Liu and Peng Sun and Xufeng Li and Tao Lin},
+      year={2025},
+      eprint={2504.10188},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2504.10188}, 
+}
 ```
