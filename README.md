@@ -182,13 +182,10 @@ This code is mainly built upon [REPA](https://github.com/sihyun-yu/REPA), [Light
 ## BibTeX
 
 ```bibtex
-@misc {liu2025efficientgenerativemodeltraining,
-      title={Efficient Generative Model Training via Embedded Representation Warmup}, 
-      author={Deyuan Liu and Peng Sun and Xufeng Li and Tao Lin},
-      year={2025},
-      eprint={2504.10188},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2504.10188}, 
+@article{liu2025efficient,
+  title={Efficient Generative Model Training via Embedded Representation Warmup},
+  author={Liu, Deyuan and Sun, Peng and Li, Xufeng and Lin, Tao},
+  journal={arXiv preprint arXiv:2504.10188},
+  year={2025}
 }
 ```
