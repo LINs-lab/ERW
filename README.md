@@ -20,9 +20,8 @@
 <h3 align="center">[<a href="https://arxiv.org/abs/2504.10188">arXiv</a>] [<a href="https://lins-lab.github.io/ERW/">Project Page</a>]</h3>
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-  <img src="asset/erw.png" style="width: 31%; border-radius: 10px;" alt="teaser_page1">
-  <img src="asset/training_line_chart.png" style="width: 33%; border-radius: 10px;" alt="teaser_page1">
-  <img src="asset/erinit1.png" style="width: 26%; border-radius: 10px;" alt="teaser_page1">
+  <img src="asset/framework.png" style="width: 55%; border-radius: 10px;" alt="teaser_page1">
+  <img src="asset/training_line_chart.png" style="width: 45%; border-radius: 10px;" alt="teaser_page1">
 </div>
 
 <b>Summary</b>: 
